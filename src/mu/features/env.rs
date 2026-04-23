@@ -5,6 +5,7 @@
 #[rustfmt::skip]
 use {
     crate::{
+        Mu,
         core::{
             apply::Apply,
             direct::DirectTag,
@@ -64,6 +65,7 @@ impl Env for Feature {
                 ("heap-info", 0, Feature::env_hp_info),
                 ("heap-room", 0, Feature::env_hp_room),
                 ("heap-size", 1, Feature::env_hp_size),
+                ("load", 1, Feature::env_load),
                 ("namespace", 1, Feature::env_namespace),
             ]),
             symbols: None,
@@ -143,6 +145,7 @@ pub trait CoreFn {
     fn env_hp_info(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
     fn env_hp_room(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
     fn env_hp_size(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
+    fn env_load(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
     fn env_namespace(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
 }
 
@@ -206,8 +209,25 @@ impl CoreFn for Feature {
         Ok(())
     }
 
+    fn env_load(env: &env::Env, fp: &mut Frame) -> exception::Result<()> {
+        env.argv_check("feature/env:load", &[Type::String], fp)?;
+
+        fp.value = match Mu::load(env, &Vector::as_string(env, fp.argv[0])) {
+            Ok(success) => {
+                if success {
+                    fp.argv[0]
+                } else {
+                    Tag::nil()
+                }
+            }
+            Err(e) => Err(e)?,
+        };
+
+        Ok(())
+    }
+
     fn env_namespace(env: &env::Env, fp: &mut Frame) -> exception::Result<()> {
-        env.argv_check("feature/env::namespace", &[Type::String], fp)?;
+        env.argv_check("feature/env:namespace", &[Type::String], fp)?;
 
         let symbols = match Namespace::symbols(env, &Vector::as_string(env, fp.argv[0])) {
             Some(symbols) => symbols,

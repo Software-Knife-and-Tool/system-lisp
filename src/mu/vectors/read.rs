@@ -60,19 +60,10 @@ impl Read for Vector {
                                 break;
                             }
                             SyntaxType::Escape => match StreamReader::read_char(env, stream)? {
-                                Some(ch) => {
-                                    if ch == '0' || ch == '1' {
-                                        digits.push(ch);
-                                    } else {
-                                        Err(Exception::err(
-                                            env,
-                                            stream,
-                                            Condition::Eof,
-                                            "mu:read",
-                                        ))?;
-                                    }
+                                Some(ch) if ch == '0' || ch == '1' => {
+                                    digits.push(ch);
                                 }
-                                None => {
+                                _ => {
                                     Err(Exception::err(env, stream, Condition::Eof, "mu:read"))?;
                                 }
                             },

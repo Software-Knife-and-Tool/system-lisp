@@ -55,13 +55,11 @@ impl Gc for GcContext<'_> {
                     .get_image_mark(usize::try_from(indirect.image_id()).unwrap());
 
                 match marked {
-                    None => (),
-                    Some(mark) => {
-                        if !mark {
-                            self.heap_ref
-                                .set_image_mark(usize::try_from(indirect.image_id()).unwrap());
-                        }
+                    Some(mark) if !mark => {
+                        self.heap_ref
+                            .set_image_mark(usize::try_from(indirect.image_id()).unwrap());
                     }
+                    _ => (),
                 }
 
                 marked
