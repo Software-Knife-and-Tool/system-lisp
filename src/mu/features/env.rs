@@ -66,7 +66,7 @@ impl Env for Feature {
                 ("heap-room", 0, Feature::env_hp_room),
                 ("heap-size", 1, Feature::env_hp_size),
                 ("load", 1, Feature::env_load),
-                ("namespace", 1, Feature::env_namespace),
+                ("symbols", 1, Feature::env_ns_symbols),
             ]),
             symbols: None,
             namespace: "feature/env".into(),
@@ -146,22 +146,43 @@ pub trait CoreFn {
     fn env_hp_room(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
     fn env_hp_size(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
     fn env_load(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
-    fn env_namespace(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
+    fn env_ns_symbols(_: &env::Env, _: &mut Frame) -> exception::Result<()>;
 }
 
 impl CoreFn for Feature {
     fn env_hp_info(env: &env::Env, fp: &mut Frame) -> exception::Result<()> {
         let heap_ref = block_on(env.heap.read());
 
-        println!("type           :bump");
-        println!("page-size      {}", heap_ref.page_size);
-        println!("npages         {}", heap_ref.npages);
-        println!("size           {}", heap_ref.size);
-        println!("alloc-barrier  {}", heap_ref.alloc_barrier);
-        println!("free-space     {}", heap_ref.free_space);
-        println!("gc-allocated   {}", heap_ref.gc_allocated);
+        let values = [
+            ("type", Symbol::keyword("bump")),
+            (
+                "page-size",
+                Fixnum::with_usize(env, heap_ref.page_size).unwrap(),
+            ),
+            ("npages", Fixnum::with_usize(env, heap_ref.npages).unwrap()),
+            ("size", Fixnum::with_usize(env, heap_ref.size).unwrap()),
+            (
+                "alloc_barrier",
+                Fixnum::with_usize(env, heap_ref.alloc_barrier).unwrap(),
+            ),
+            (
+                "free-space",
+                Fixnum::with_usize(env, heap_ref.free_space).unwrap(),
+            ),
+            (
+                "gc-allocated",
+                Fixnum::with_usize(env, heap_ref.gc_allocated).unwrap(),
+            ),
+        ];
 
-        fp.value = Tag::nil();
+        drop(heap_ref);
+
+        let cons_values = values
+            .iter()
+            .map(|(label, tag)| Cons::cons(env, Vector::from(label as &str).with_heap(env), *tag))
+            .collect::<Vec<Tag>>();
+
+        fp.value = Cons::list(env, &cons_values);
 
         Ok(())
     }
@@ -226,20 +247,41 @@ impl CoreFn for Feature {
         Ok(())
     }
 
-    fn env_namespace(env: &env::Env, fp: &mut Frame) -> exception::Result<()> {
-        env.argv_check("feature/env:namespace", &[Type::String], fp)?;
+    fn env_ns_symbols(env: &env::Env, fp: &mut Frame) -> exception::Result<()> {
+        let ns = fp.argv[0];
+        let (stype, svec) = Struct::destruct(env, ns);
 
-        let symbols = match Namespace::symbols(env, &Vector::as_string(env, fp.argv[0])) {
-            Some(symbols) => symbols,
-            None => Err(Exception::err(
+        if !stype.eq_(&Symbol::keyword("ns")) {
+            Err(Exception::err(
                 env,
-                fp.argv[0],
-                Condition::Range,
-                "feature/env:env",
-            ))?,
-        };
+                ns,
+                Condition::Type,
+                "feature/env:symbols",
+            ))?;
+        }
 
-        fp.value = Cons::list(env, &symbols);
+        let name = Vector::as_string(env, Vector::ref_(env, svec, 0).unwrap());
+        let ns_ref = block_on(env.ns_map.read());
+
+        fp.value = match &ns_ref[&name].1 {
+            Namespace::Static(static_) => match &static_ {
+                Some(hash) => {
+                    Cons::list(env, &hash.keys().map(|key| hash[key]).collect::<Vec<Tag>>())
+                }
+                None => Tag::nil(),
+            },
+            Namespace::Dynamic(hash) => {
+                let hash_ref = block_on(hash.read());
+
+                Cons::list(
+                    env,
+                    &hash_ref
+                        .keys()
+                        .map(|key| hash_ref[key])
+                        .collect::<Vec<Tag>>(),
+                )
+            }
+        };
 
         Ok(())
     }

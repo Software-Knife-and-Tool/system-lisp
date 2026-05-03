@@ -20,7 +20,7 @@
                                     ,(mu:symbol-value symbol)
                                     ,(mu:repr symbol)))
                    (format:%format stream "unbound~Tunbound~T~A~Tunbound~%" `(,(mu:symbol-name symbol)))))
-            (feature/core:ns-symbols (mu:find-namespace ns)))
+            (feature/env:symbols (mu:find-namespace ns)))
            (mu:close stream))
          (mu:open :file :output file-name :t))
         :t)))

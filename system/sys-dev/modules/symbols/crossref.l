@@ -20,7 +20,7 @@
                                     ,(core:type-of (mu:symbol-value symbol))
                                     ,(mu:symbol-value symbol)))
                    (format:%format stream "unbound~Tunbound~T~A~%" `(,(mu:symbol-name symbol)))))
-            (feature/core:ns-symbols (mu:find-namespace "core")))
+            (feature/env:symbols (mu:find-namespace "core")))
            (mu:close stream))
          (mu:open :file :output file-name :t))
         :t)))
