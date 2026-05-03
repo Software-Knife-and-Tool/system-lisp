@@ -10,22 +10,18 @@ use {
             apply::Apply,
             core_::{Core as Core_},
             env::Env,
-            exception::{self, Condition, Exception},
+            exception,
             frame::Frame,
             tag::{Tag,},
             type_::{Type},
         },
-        namespaces::namespace::Namespace,
         features::feature::Feature,
         types::{
             cons::Cons,
             fixnum::Fixnum,
-            struct_::Struct,
-            symbol::Symbol,
             vector::Vector
         },
     },
-    futures_lite::future::block_on,
     perf_monitor::{
         cpu::cpu_time,
         fd::fd_count_cur,
@@ -50,7 +46,6 @@ impl Core for Feature {
                 ("process-time", 0, Feature::core_time),
                 ("time-units-per-second", 0, Feature::core_time_units),
                 ("sleep", 1, Feature::core_sleep),
-                ("ns-symbols", 1, Feature::core_ns_symbols),
             ]),
             namespace: "feature/core".into(),
         }
@@ -65,7 +60,6 @@ pub trait CoreFn {
     fn core_mem_virt(_: &Env, _: &mut Frame) -> exception::Result<()>;
     fn core_time(_: &Env, _: &mut Frame) -> exception::Result<()>;
     fn core_time_units(_: &Env, _: &mut Frame) -> exception::Result<()>;
-    fn core_ns_symbols(_: &Env, _: &mut Frame) -> exception::Result<()>;
 }
 
 impl CoreFn for Feature {
@@ -107,7 +101,7 @@ impl CoreFn for Feature {
     }
 
     fn core_time_units(env: &Env, fp: &mut Frame) -> exception::Result<()> {
-        fp.value = Fixnum::with_u64(env, 1000, "coree:core")?;
+        fp.value = Fixnum::with_u64(env, 1000, "core:core")?;
 
         Ok(())
     }
@@ -149,40 +143,6 @@ impl CoreFn for Feature {
         ];
 
         fp.value = Cons::list(env, &alist);
-
-        Ok(())
-    }
-
-    fn core_ns_symbols(env: &Env, fp: &mut Frame) -> exception::Result<()> {
-        let ns = fp.argv[0];
-        let (stype, svec) = Struct::destruct(env, ns);
-
-        if !stype.eq_(&Symbol::keyword("ns")) {
-            Err(Exception::err(env, ns, Condition::Type, "mu:intern"))?;
-        }
-
-        let name = Vector::as_string(env, Vector::ref_(env, svec, 0).unwrap());
-        let ns_ref = block_on(env.ns_map.read());
-
-        fp.value = match &ns_ref[&name].1 {
-            Namespace::Static(static_) => match &static_ {
-                Some(hash) => {
-                    Cons::list(env, &hash.keys().map(|key| hash[key]).collect::<Vec<Tag>>())
-                }
-                None => Tag::nil(),
-            },
-            Namespace::Dynamic(hash) => {
-                let hash_ref = block_on(hash.read());
-
-                Cons::list(
-                    env,
-                    &hash_ref
-                        .keys()
-                        .map(|key| hash_ref[key])
-                        .collect::<Vec<Tag>>(),
-                )
-            }
-        };
 
         Ok(())
     }
