@@ -4,13 +4,13 @@
 
 <img src="https://github.com/Software-Knife-and-Tool/mu/blob/main/.github/mu.png?raw=true" width="20%" height="%20">
 
-# *mu* - system programming environment
+# *system-lisp* - a programming environment
 
 ### Under heavy development 
 
 ###### version 0.2.19
 
-*mu* is a Lisp-idiomatic functionally-oriented interactive environment for system programming in the Rust ecosystem. It is targeted to low-resource persistent POSIX environments.
+*system-lisp* is a Lisp-idiomatic functionally-oriented interactive environment for system programming in the Rust ecosystem. It is targeted to low-resource persistent POSIX environments.
 
 *mu* is a Lisp-1 namespaced programming language with Common Lisp idioms and macro system.
 
@@ -163,7 +163,7 @@ The `/opt/system-lisp` directory is hardwired into several tools and the release
 
   
 
-#### Building the *mu* system
+#### Building the system
 
 ------
 
@@ -223,7 +223,7 @@ Currently supported features by namespace:
  						process-time time-units-per-sec delay
  feature/env:			env heap-info heap-size heap-room cache-room namespace
  feature/system:		uname shell exit sysinfo
- feature/instrument:    instrument-control
+ feature/socket:        ...
 
 ```
 

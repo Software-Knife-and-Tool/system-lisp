@@ -15,8 +15,8 @@ use {
 use crate::features::core::Core;
 #[cfg(feature = "env")]
 use crate::features::env::Env;
-#[cfg(feature = "instrument")]
-use crate::features::instrument::Instrument;
+#[cfg(feature = "socket")]
+use crate::features::socket::Socket;
 #[cfg(feature = "system")]
 use crate::features::system::System;
 
@@ -26,7 +26,7 @@ pub static FEATURES: LazyLock<Features> = LazyLock::new(Features::new);
 pub struct Feature {
     pub namespace: String,
     pub functions: Option<Vec<CoreFnDef>>,
-    pub symbols: Option<Vec<(String, Tag)>>,
+    pub symbols: Option<Vec<(&'static str, Tag)>>,
 }
 
 pub struct Features {
@@ -40,10 +40,10 @@ impl Features {
             <Feature as Core>::feature(),
             #[cfg(feature = "env")]
             <Feature as Env>::feature(),
+            #[cfg(feature = "socket")]
+            <Feature as Socket>::feature(),
             #[cfg(feature = "system")]
             <Feature as System>::feature(),
-            #[cfg(feature = "instrument")]
-            <Feature as Instrument>::feature(),
         ];
 
         Self { features }

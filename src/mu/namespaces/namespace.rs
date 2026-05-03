@@ -28,7 +28,10 @@ pub enum Namespace {
 }
 
 #[derive(Clone)]
-pub struct StaticSymbols(pub Option<Vec<(String, Tag)>>, pub Option<Vec<CoreFnDef>>);
+pub struct StaticSymbols(
+    pub Option<Vec<(&'static str, Tag)>>,
+    pub Option<Vec<CoreFnDef>>,
+);
 
 impl Namespace {
     pub fn with(env: &Env, name: &str) -> exception::Result<Tag> {
@@ -77,9 +80,9 @@ impl Namespace {
 
         if let Some(sym_defs) = defs.0 {
             for def in sym_defs {
-                let symbol = Symbol::new(env, ns, &def.0, def.1).with_heap(env);
+                let symbol = Symbol::new(env, ns, def.0, def.1).with_heap(env);
 
-                ns_map.insert(def.0, symbol).unwrap();
+                ns_map.insert(def.0.to_string(), symbol);
             }
         }
 
@@ -120,9 +123,9 @@ impl Namespace {
 
         if let Some(sym_defs) = defs.0 {
             for def in sym_defs {
-                let symbol = Symbol::new(env, ns, &def.0, def.1).with_heap(env);
+                let symbol = Symbol::new(env, ns, def.0, def.1).with_heap(env);
 
-                ns_map.insert(def.0, symbol);
+                ns_map.insert(def.0.to_string(), symbol);
             }
         }
 

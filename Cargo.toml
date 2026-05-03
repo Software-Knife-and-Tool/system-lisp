@@ -22,11 +22,11 @@ crate-type = ["lib"]
 bench = false
 
 [features]
-default = [ "core", "env", "system" ]
+default = [ "core", "env", "system", "socket" ]
 core = []
 env = []           # needed for testing, common
 system = []
-instrument = []
+socket = []
 
 [profile.dev]
 opt-level = 0
@@ -45,7 +45,6 @@ chrono = "0.4"
 futures-lite = "2.6"
 futures-locks = "0.7"
 lite-json = "0.2"
-log = "0.4"
 memmap = "0.7"
 modular-bitfield = "0.13"
 nix = {version = "0.31", features = [ "feature" ]}
@@ -53,6 +52,7 @@ num_enum = "0.7"
 page_size = "0.6"
 perf_monitor = "0.2"
 smol = "2.0"
+socket = "0.0"
 timer = "0.2"
 
 [lints.clippy]
