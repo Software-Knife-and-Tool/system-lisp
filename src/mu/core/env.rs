@@ -23,10 +23,6 @@ use {
     std::collections::HashMap,
 };
 
-#[cfg(feature = "instrument")]
-#[allow(unused_imports)]
-use crate::core::instrument::Instrument;
-
 pub struct Env {
     // configuration
     pub config: Config,
@@ -45,12 +41,6 @@ pub struct Env {
 
     pub keyword_ns: Tag,
     pub mu_ns: Tag,
-
-    // profiling
-    #[cfg(feature = "instrument")]
-    pub prof: RwLock<Vec<(Tag, u64)>>,
-    #[cfg(feature = "instrument")]
-    pub prof_on: RwLock<bool>,
 }
 
 impl Env {
@@ -65,10 +55,6 @@ impl Env {
             mu_ns: Tag::nil(),
             ns_map: RwLock::new(HashMap::new()),
             vector_cache: RwLock::new(HashMap::new()),
-            #[cfg(feature = "instrument")]
-            prof: RwLock::new(Vec::new()),
-            #[cfg(feature = "instrument")]
-            prof_on: RwLock::new(false),
         };
 
         // establish runtime namespaces
@@ -79,9 +65,9 @@ impl Env {
             &env,
             StaticSymbols(
                 Some(vec![
-                    ("*standard-input*".to_string(), CORE.stdio.0),
-                    ("*standard-output*".to_string(), CORE.stdio.1),
-                    ("*error-output*".to_string(), CORE.stdio.2),
+                    ("*standard-input*", CORE.stdio.0),
+                    ("*standard-output*", CORE.stdio.1),
+                    ("*error-output*", CORE.stdio.2),
                 ]),
                 Some(CORE_FUNCTIONS.to_vec()),
             ),
@@ -100,11 +86,6 @@ impl Env {
             )
             .unwrap();
         }
-
-        /*
-        #[cfg(feature = "instrument")]
-        Instrument::eprintln(&env, "env: new, mu ns", true, env.mu_ns);
-         */
 
         env
     }

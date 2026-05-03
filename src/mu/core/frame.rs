@@ -21,9 +21,6 @@ use {
     futures_lite::future::block_on,
 };
 
-#[cfg(feature = "instrument")]
-use crate::features::{feature::Feature, instrument::Instrument};
-
 pub struct Frame {
     pub argv: Vec<Tag>,
     pub func: Tag,
@@ -106,9 +103,6 @@ impl Frame {
 
     // apply
     pub fn apply(self, env: &Env, func: Tag) -> exception::Result<Tag> {
-        #[cfg(feature = "instrument")]
-        <Feature as Instrument>::instrument_event(env, func).unwrap();
-
         let (arity, form) = Function::destruct(env, func);
         let nreqs = usize::try_from(Fixnum::as_i64(arity)).unwrap();
         let nargs = self.argv.len();

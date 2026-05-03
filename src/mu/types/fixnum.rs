@@ -30,6 +30,7 @@ impl From<usize> for Tag {
 
 impl From<i64> for Tag {
     fn from(fx: i64) -> Tag {
+        assert!(fx >= 0);
         assert!(Fixnum::is_i56(fx));
 
         DirectTag::to_tag(
@@ -42,6 +43,7 @@ impl From<i64> for Tag {
 
 impl From<i32> for Tag {
     fn from(fx: i32) -> Tag {
+        assert!(fx >= 0);
         DirectTag::to_tag(
             u64::try_from(i64::from(fx)).unwrap(),
             DirectExt::ExtType(ExtType::Fixnum),
