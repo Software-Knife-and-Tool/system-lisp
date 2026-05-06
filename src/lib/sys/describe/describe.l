@@ -34,8 +34,8 @@
       (describe:%format stream
        "struct: (~A bytes) :struct  type:  ~A~%    props: ~A~%"
        `(,(feature/env:heap-size struct)
-         ,(mu:st-type struct)
-         ,(mu:st-vec struct)))))
+         ,(mu:struct-type struct)
+         ,(mu:struct-vec struct)))))
 
 (mu:intern describe "%symbol"
    (:lambda (symbol stream)
@@ -52,17 +52,17 @@
                          (describe:%format stream
                           "symbol: (~A bytes) :symbol symbol~%    ns:    ~A~%    name:  ~A~%    value: ~A~%"
                           `(,(feature/env:heap-size symbol)
-                            ,(mu:struct-ref view 0)
-                            ,(mu:struct-ref view 1)
-                            ,(mu:struct-ref view 2))))
+                            ,(mu:svref view 0)
+                            ,(mu:svref view 1)
+                            ,(mu:svref view 2))))
                       (mu:view symbol))
                      ((:lambda (view)
                          (describe:%format stream
                           "symbol: (~A bytes) :symbol symbol~%    ns:      ~A~%    name:    ~A~%    unbound: :t~%"
                           `(,(feature/env:heap-size symbol)
-                            ,(mu:struct-ref view 0)
-                            ,(mu:struct-ref view 1)
-                            ,(mu:struct-ref view 2))))
+                            ,(mu:svref view 0)
+                            ,(mu:svref view 1)
+                            ,(mu:svref view 2))))
                       (mu:view symbol)))))))
 
 (mu:intern describe "%fixnum"
@@ -72,7 +72,7 @@
 
 (mu:intern describe "%char"
    (:lambda (ch stream)
-      (describe:%format stream "char: (~A bytes) :char ~A~%    format: 8b ASCII character immediate~%    value:  ~A~%"
+      (describe:%format stream "char: (~A bytes) :char    format: 8b ASCII character immediate~%    value:  ~A~%"
         `(,(feature/env:heap-size ch) ,ch))))
 
 (mu:intern describe "%float"
@@ -85,13 +85,13 @@
    (:lambda (str stream)
       (describe:%format stream
        "string: (~A bytes) :vector string~%    format: unsigned 8b character vector~%    length: ~A~%    value:  ~A~%"
-       `(,(feature/env:heap-size str) ,(mu:struct-len str) ,str))))
+       `(,(feature/env:heap-size str) ,(mu:vector-length str) ,str))))
 
 (mu:intern describe "%vector"
    (:lambda (vec stream)
       (describe:%format stream
        "vector: (~A bytes) :vector format: ~A~%    length: ~A~%    elements:  ~A~%"
-       `(,(feature/env:heap-size vec) ,(mu:struct-type vec) ,(mu:struct-type vec) ,vec))))
+       `(,(feature/env:heap-size vec) ,(mu:vector-type vec) ,(mu:vector-length vec) ,vec))))
 
 (mu:intern describe "%cons"
    (:lambda (cons stream)
