@@ -1,0 +1,13 @@
+;;;  SPDX-FileCopyrightText: Copyright 2026 James M. Putnam (putnamjm.design@gmail.com)
+;;;  SPDX-License-Identifier: MIT
+
+;;;
+;;; core module
+;;;
+(system:provide
+ "describe"
+ '((:version . "0.0.1")
+   (:ns      . "describe")
+   (:load    . (
+                "describe.l"
+                ))))

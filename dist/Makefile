@@ -66,6 +66,7 @@ dist:
 	@install -m 644 $(DOCS)/reference/html/*.html $(PACKAGE)/doc/html
 
 	@install -D -m 644 -t $(PACKAGE)/lib/core $(LIB)/sys/core/*.l $(LIB)/sys/core/*.def
+	@install -D -m 644 -t $(PACKAGE)/lib/describe $(LIB)/sys/describe/*.l $(LIB)/sys/describe/*.def
 	@install -D -m 644 -t $(PACKAGE)/lib/format $(LIB)/sys/format/*.l $(LIB)/sys/format/*.def
 	@install -D -m 644 -t $(PACKAGE)/lib/fasl $(LIB)/sys/fasl/*.l $(LIB)/sys/fasl/*.def
 	@install -D -m 644 -t $(PACKAGE)/lib/image $(LIB)/sys/image/*.l $(LIB)/sys/image/*.def
@@ -78,6 +79,9 @@ dist:
 
 	@$(RELEASE)/mu-sys -l $(LIB)/dist/system.l -q '(system:require "../src/lib/sys/" "core")'
 	@install -m 644 ./core.sys $(PACKAGE)/lib
+
+	@$(RELEASE)/mu-sys -l $(LIB)/dist/system.l -l ./core.sys -q '(system:require "../src/lib/sys/" "describe")'
+	@install -m 644 ./describe.sys $(PACKAGE)/lib
 
 	@$(RELEASE)/mu-sys -l $(LIB)/dist/system.l -l ./core.sys -q '(system:require "../src/lib/sys/" "format")'
 	@install -m 644 ./format.sys $(PACKAGE)/lib
