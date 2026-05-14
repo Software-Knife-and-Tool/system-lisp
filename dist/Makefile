@@ -11,6 +11,7 @@ VERSION := $(shell cargo pkgid | sed 's/.*\///' | sed 's/#.*@/-/')
 # │   └── html
 # ├── lib
 # │   ├── core
+# │   ├── describe
 # │   ├── fasl
 # │   ├── format
 # │   ├── image

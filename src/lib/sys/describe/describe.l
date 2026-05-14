@@ -9,7 +9,7 @@
       (mu:apply (mu:symbol-value (mu:find (mu:find-namespace "format") "%format")) `(,fmt-string ,stream ,args))))
 
 (mu:intern describe "%function"
-   (:lambda (fn stream)
+   (:lambda (fn stream verbose)
      (:if (core:%closure-p fn)
           ((:lambda (lambda arity fn env)
              (describe:%format stream
@@ -30,7 +30,7 @@
            (mu:view fn)))))
 
 (mu:intern describe "%struct"
-   (:lambda (struct stream)
+   (:lambda (struct stream verbose)
       (describe:%format stream
        "struct: (~A bytes) :struct  type:  ~A~%    props: ~A~%"
        `(,(feature/env:heap-size struct)
@@ -38,7 +38,7 @@
          ,(mu:struct-vec struct)))))
 
 (mu:intern describe "%symbol"
-   (:lambda (symbol stream)
+   (:lambda (symbol stream verbose)
       (:if (core:null symbol)
            (describe:%format stream
             "symbol: (~A bytes) :null null~%    ns:    ()~%    name:  :nil~%    value: ()~%"
@@ -66,35 +66,35 @@
                       (mu:view symbol)))))))
 
 (mu:intern describe "%fixnum"
-   (:lambda (fx stream)
+   (:lambda (fx stream verbose)
       (describe:%format stream "fixnum: (~A bytes) :fixnum format: 56b signed integer immediate~%    value:  ~A~%"
         `(,(feature/env:heap-size fx) ,fx))))
 
 (mu:intern describe "%char"
-   (:lambda (ch stream)
+   (:lambda (ch stream verbose)
       (describe:%format stream "char: (~A bytes) :char    format: 8b ASCII character immediate~%    value:  ~A~%"
         `(,(feature/env:heap-size ch) ,ch))))
 
 (mu:intern describe "%float"
-   (:lambda (fl stream)
+   (:lambda (fl stream verbose)
       (describe:%format stream
        "float: (~A bytes) :float format: 32b IEEE single float immediate~%    value:  ~A~%"
        `(,(feature/env:heap-size fl) ,fl))))
 
 (mu:intern describe "%string"
-   (:lambda (str stream)
+   (:lambda (str stream verbose)
       (describe:%format stream
        "string: (~A bytes) :vector string~%    format: unsigned 8b character vector~%    length: ~A~%    value:  ~A~%"
        `(,(feature/env:heap-size str) ,(mu:vector-length str) ,str))))
 
 (mu:intern describe "%vector"
-   (:lambda (vec stream)
+   (:lambda (vec stream verbose)
       (describe:%format stream
        "vector: (~A bytes) :vector format: ~A~%    length: ~A~%    elements:  ~A~%"
        `(,(feature/env:heap-size vec) ,(mu:vector-type vec) ,(mu:vector-length vec) ,vec))))
 
 (mu:intern describe "%cons"
-   (:lambda (cons stream)
+   (:lambda (cons stream verbose)
       (:if (core:dotted-pair-p cons)
            (describe:%format stream
             "dotted pair: (~A bytes) :cons    value:  ~A~%"
@@ -104,7 +104,7 @@
             `(,(feature/env:heap-size cons) ,(mu:length cons) ,cons)))))
 
 (mu:intern describe "describe"
-   (:lambda (value stream)
+   (:lambda (value stream verbose)
       (mu:fix
        (:lambda (list)
           (:if (core:null list)
@@ -112,7 +112,7 @@
                ((:lambda (predicate fn)
                    (:if (mu:apply predicate `(,value))
                         ((:lambda ()
-                            (mu:apply fn `(,value ,stream))
+                            (mu:apply fn `(,value ,stream ,verbose))
                             ()))
                         (mu:cdr list)))
                (mu:car (mu:car list))
