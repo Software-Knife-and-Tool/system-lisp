@@ -8,7 +8,7 @@
 
 ### Under heavy development 
 
-###### version 0.2.19
+###### version 0.2.20
 
 *system-lisp* is a Lisp-idiomatic functionally-oriented interactive environment for system programming in the Rust ecosystem. It is targeted to low-resource persistent POSIX environments.
 
@@ -30,6 +30,7 @@ Subsequent layers based on the runtime offer advanced features.
 
 - reorganized dist mechanism
   
+- add describe sys
 
 #### Rationale
 
@@ -57,7 +58,7 @@ Most of our core computational frameworks are built on static systems and are fr
 
 - *mu*, a small, configurable runtime library and language
 - *mu-sys*, minimal POSIX command suitable for containers
-- *qing*, a native code compiler
+- *telerin*, a native code compiler
 - *sys-dev* , a cargo-like development and packaging utility
 - *sys-repl* , a configurable interactive tool for exzploration and debugging 
 - small and simple installation
@@ -98,7 +99,7 @@ The *mu* runtime kernel is written in mostly-safe `rust` (the system image/heap 
 
 The runtime implements 64 bit tagged pointers, is available as a crate, and extends a Rust API for embedded applications. The runtime is primarily a resource allocator and evaluator for the *mu* kernel language. *mu* provides the usual fixed-width numeric types, lists, fixed-arity lambdas, simple structs, LISP-1 symbol namespaces, streams, and specialized vectors in a garbage collected environment.
 
-The *mu* 2-LISP system is organized as a stack of compilers, culminating in the *qing* native code compiler.
+The *mu* 2-LISP system is organized as a stack of compilers, culminating in the *terlerin* native code compiler.
 
 The *core* library provides *rest* lambdas, *closures*, expanded types, *macros*, and a reader/compiler for those forms.
 
@@ -140,6 +141,7 @@ Once built, the *html* for the *reference* material is installed in *doc/referen
 │   └── html
 ├── lib
 │   ├── core
+│   ├── describe
 │   ├── fasl
 │   ├── format
 │   └── image
@@ -174,7 +176,7 @@ version 0.2.13 and 0.2.14 are built with rustc 1.91.1
 version 0.2.15 is built with rustc 1.93.0
 version 0.2.16 is built with rustc 1.93.1
 version 0.2.17 and 0.2.18 are built with rustc 1.94.0
-version 0.2.19 is built with rustc 1.95.0
+version 0.2.19 and 0.2.20 are built with rustc 1.95.0
 ```
 
 The *mu* runtime is a native code program that must be built for the target CPU architecture. The runtime build system requires only a `rust` development environment, `rust-fmt`, `clippy` and the  GNU `make` utility. The instructions below assume a developmentt system with `apt` package management.
@@ -219,11 +221,11 @@ Currently supported features by namespace:
 ```
  default = [ "env", "core", "system" ]
  
- feature/core:			core process-mem-virt process-mem-res
- 						process-time time-units-per-sec delay
- feature/env:			env heap-info heap-size heap-room cache-room namespace
+ feature/core:			core-info process-mem-virt process-mem-res sleep
+ 						process-time process-fds time-units-per-sec delay
+ feature/env:			env-info heap-info heap-size heap-room cache-room load symbols
  feature/system:		uname shell exit sysinfo
- feature/socket:        ...
+ feature/socket:        [not wholly implemented]
 
 ```
 
