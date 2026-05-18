@@ -130,11 +130,12 @@ impl Function {
 
     pub fn image_size(env: &Env, func: Tag) -> usize {
         match Function::destruct(env, func).1.type_of() {
-            Type::Null | Type::Cons | Type::Vector => std::mem::size_of::<Function>(),
+            Type::Fixnum | Type::Null | Type::Cons | Type::Vector => {
+                std::mem::size_of::<Function>()
+            }
             Type::Symbol => {
                 std::mem::size_of::<Fixnum>() + Symbol::image_size(env, Self::destruct(env, func).1)
-            },
-            Type::Fixnum => { std::mem::size_of::<Tag>() },
+            }
             _ => panic!(),
         }
     }
